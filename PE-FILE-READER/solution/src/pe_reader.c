@@ -8,31 +8,22 @@
  */
 #include "pe_reader.h"
 
-//! Dos header
-IMAGE_DOS_HEADER header_dos = {0};
-//! PE header
-IMAGE_NT_HEADERS header_pe = {0};
 
 /**
  * @brief Reading data from PE file
- * @param argv Array with file information
+ * @param in Input file
+ * @param file Structure of PE file
  */
-void read_data(char *argv[]){
-    /// Input PE file
-    FILE *pe_file = fopen(argv[1], "rb");
-    /// Output bin file
-    FILE *output = fopen(argv[3], "wb");
-
-    fread(&header_dos, sizeof header_dos, 1, pe_file);
-    fseek(pe_file, header_dos.e_lfanew, 0);
-    fread(&header_pe, sizeof header_pe, 1, pe_file);
-
-    /// File header
-    IMAGE_FILE_HEADER header_sections = header_pe.FileHeader;
-
-    /// Section name
-    char *section_name =  argv[2];
-
-    print_answer(header_sections,section_name,pe_file,output);
-
+void read_data(FILE *in, struct PEFile *file) {
+    //DOS offset
+    fseek(in, 0x3c, SEEK_SET);
+    //Signature offset
+    uint32_t offset;
+    fread(&offset, sizeof(uint32_t), 1, in);
+    fseek(in, (long)offset, SEEK_SET);
+    fread(&file->signature, sizeof(file->signature), 1, in);
+    fread(&file->header, sizeof(file->header), 1, in);
+    file->sectionHeaders = malloc(file->header.NumberOfSections * sizeof(struct SectionHeader));
+    fseek(in, file->header.SizeOfOptionalHeader, SEEK_CUR);
+    fread(file->sectionHeaders, sizeof(struct SectionHeader), file->header.NumberOfSections, in);
 }

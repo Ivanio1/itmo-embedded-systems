@@ -7,6 +7,6 @@
 #ifndef SECTION_EXTRACTOR_PE_READER_H
 #define SECTION_EXTRACTOR_PE_READER_H
 
-void read_data(char *argv[]);
+void read_data(FILE *in, struct PEFile *file);
 
 #endif //SECTION_EXTRACTOR_PE_READER_H

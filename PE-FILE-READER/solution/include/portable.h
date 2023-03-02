@@ -21,360 +21,102 @@
 #include <string.h>
 
 #endif
-typedef unsigned char BYTE;
-typedef unsigned short WORD;
-typedef unsigned long DWORD;
-typedef unsigned long long QWORD;
-typedef unsigned long LONG;
-typedef __int64 LONGLONG;
-typedef unsigned __int64 ULONGLONG;
-
-#define ___IMAGE_NT_OPTIONAL_HDR32_MAGIC       0x10b
-#define ___IMAGE_NT_OPTIONAL_HDR64_MAGIC       0x20b
-#define ___IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
-#define ___IMAGE_DOS_SIGNATURE                 0x5A4D
-
-#define ___IMAGE_DIRECTORY_ENTRY_EXPORT          0
-#define ___IMAGE_DIRECTORY_ENTRY_IMPORT          1
-#define ___IMAGE_DIRECTORY_ENTRY_RESOURCE        2
-#define ___IMAGE_DIRECTORY_ENTRY_EXCEPTION       3
-#define ___IMAGE_DIRECTORY_ENTRY_SECURITY        4
-#define ___IMAGE_DIRECTORY_ENTRY_BASERELOC       5
-#define ___IMAGE_DIRECTORY_ENTRY_DEBUG           6
-#define ___IMAGE_DIRECTORY_ENTRY_ARCHITECTURE    7
-#define ___IMAGE_DIRECTORY_ENTRY_GLOBALPTR       8
-#define ___IMAGE_DIRECTORY_ENTRY_TLS             9
-#define ___IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG    10
-#define ___IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT   11
-#define ___IMAGE_DIRECTORY_ENTRY_IAT            12
-#define ___IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT   13
-#define ___IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR 14
-
-#define IMAGE_SIZEOF_SHORT_NAME              8
-#define IMAGE_SIZEOF_SECTION_HEADER          40
-
 
 /**
- * @brief Dos header
+ * Structure of PE header with specific fields
  */
-#if defined _MSC_VER
-#pragma pack(push,1)
+
+#ifdef _MSC_VER
+#pragma pack(push, 1)
 #endif
-typedef struct
-#if defined __GNUC__
+struct
+#if defined __clang__ || defined __GNUC__
         __attribute__((packed))
 #endif
-IMAGE_DOS_HEADER {
-    //! e_magic
-    WORD e_magic;
-    //!e_cblp
-    WORD e_cblp;
-    //!e_cp
-    WORD e_cp;
-    //!e_crlc
-    WORD e_crlc;
-    //!e_cparhdr
-    WORD e_cparhdr;
-    //!e_minalloc
-    WORD e_minalloc;
-    //!e_maxalloc
-    WORD e_maxalloc;
-    //! e_ss
-    WORD e_ss;
-    //! e_sp
-    WORD e_sp;
-    //! e_csum
-    WORD e_csum;
-    //! e_ip
-    WORD e_ip;
-    //! e_cs
-    WORD e_cs;
-    //! e_lfarlc
-    WORD e_lfarlc;
-    //! e_ovno
-    WORD e_ovno;
-    //! e_res[4]
-    WORD e_res[4];
-    //! e_oemid
-    WORD e_oemid;
-    //! e_oeminfo
-    WORD e_oeminfo;
-    //! e_res2[10]
-    WORD e_res2[10];
-    //! e_lfanew
-    LONG e_lfanew;
-} IMAGE_DOS_HEADER;
-#if defined _MSC_VER
-#pragma pack(pop)
-#endif
+PEHeader {
+    ///The number that identifies the type of target machine
+    int16_t Machine;
+    ///The number of sections. This indicates the size of the section table, which immediately follows the headers.
+    int16_t NumberOfSections;
+    ///The low 32 bits of the number of seconds since 00:00 January 1, 1970 (a C run-time time_t value), which indicates when the file was created.
+    int32_t TimeDateStamp;
+    ///The file offset of the COFF symbol table, or zero if no COFF symbol table is present.
+    int32_t PointerToSymbolTable;
+    ///The number of entries in the symbol table.
+    int32_t NumberOfSymbols;
+    ///The size of the optional header, which is required for executable files but not for object files
+    int16_t SizeOfOptionalHeader;
+    ///The flags that indicate the attributes of the file
+    int16_t Characteristics;
 
-
-/**
- * @brief Data directory
- */
-#if defined _MSC_VER
-#pragma pack(push,1)
-#endif
-typedef struct
-#if defined __GNUC__
-        __attribute__((packed))
-#endif
-IMAGE_DATA_DIRECTORY {
-    //! Virtual Address
-    DWORD VirtualAddress;
-    //! Size
-    DWORD Size;
-} IMAGE_DATA_DIRECTORY;
-#if defined _MSC_VER
-#pragma pack(pop)
-#endif
-
-
-/**
- * @brief Optional header
- */
-#if defined _MSC_VER
-#pragma pack(push,1)
-#endif
-typedef struct
-#if defined __GNUC__
-        __attribute__((packed))
-#endif
-IMAGE_OPTIONAL_HEADER {
-    //! Magic
-    WORD Magic;
-    //! MajorLinkerVersion
-    BYTE MajorLinkerVersion;
-    //! MinorLinkerVersion
-    BYTE MinorLinkerVersion;
-    //! Size Of Code
-    DWORD SizeOfCode;
-    //! SizeOfInitializedData
-    DWORD SizeOfInitializedData;
-    //! SizeOfUninitializedData
-    DWORD SizeOfUninitializedData;
-    //! Address Of EntryPoint
-    DWORD AddressOfEntryPoint;
-    //! Base Of Code
-    DWORD BaseOfCode;
-    //! Base Of Data
-    DWORD BaseOfData;
-    //! Image Base
-    DWORD ImageBase;
-    //! SectionAlignment
-    DWORD SectionAlignment;
-    //! FileAlignment
-    DWORD FileAlignment;
-    //! MajorOperatingSystemVersion
-    WORD MajorOperatingSystemVersion;
-    //! MinorOperatingSystemVersion
-    WORD MinorOperatingSystemVersion;
-    //! MajorImageVersion
-    WORD MajorImageVersion;
-    //! MinorImageVersion
-    WORD MinorImageVersion;
-    //! MajorSubsystemVersion
-    WORD MajorSubsystemVersion;
-    //! MinorSubsystemVersion
-    WORD MinorSubsystemVersion;
-    //! Win32VersionValue
-    DWORD Win32VersionValue;
-    //! SizeOfImage
-    DWORD SizeOfImage;
-    //! SizeOfHeaders
-    DWORD SizeOfHeaders;
-    //! CheckSum
-    DWORD CheckSum;
-    //! Subsystem
-    WORD Subsystem;
-    //! DllCharacteristics
-    WORD DllCharacteristics;
-    //! Size Of Stack Reserve
-    DWORD SizeOfStackReserve;
-    //! Size Of Stack Commit
-    DWORD SizeOfStackCommit;
-    //! Size Of Heap Reserve
-    DWORD SizeOfHeapReserve;
-    //! Size Of Heap Commit
-    DWORD SizeOfHeapCommit;
-    //! Loader Flags
-    DWORD LoaderFlags;
-    //! Number Of Rva And Sizes
-    DWORD NumberOfRvaAndSizes;
-    //! Data Directory
-    IMAGE_DATA_DIRECTORY DataDirectory[___IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-} IMAGE_OPTIONAL_HEADER32;
-#if defined _MSC_VER
-#pragma pack(pop)
-#endif
-
-
-/**
- * @brief Optional header(64)
- */
-#if defined _MSC_VER
-#pragma pack(push,1)
-#endif
-typedef struct
-#if defined __GNUC__
-        __attribute__((packed))
-#endif
-IMAGE_OPTIONAL_HEADER64 {
-    //! Magic
-    WORD Magic;
-    //! MajorLinkerVersion
-    BYTE MajorLinkerVersion;
-    //! MinorLinkerVersion
-    BYTE MinorLinkerVersion;
-    //! Size Of Code
-    DWORD SizeOfCode;
-    //! SizeOfInitializedData
-    DWORD SizeOfInitializedData;
-    //! SizeOfUninitializedData
-    DWORD SizeOfUninitializedData;
-    //! Address Of EntryPoint
-    DWORD AddressOfEntryPoint;
-    //! Base Of Code
-    DWORD BaseOfCode;
-    //! Image Base
-    ULONGLONG ImageBase;
-    //! SectionAlignment
-    DWORD SectionAlignment;
-    //! FileAlignment
-    DWORD FileAlignment;
-    //! MajorOperatingSystemVersion
-    WORD MajorOperatingSystemVersion;
-    //! MinorOperatingSystemVersion
-    WORD MinorOperatingSystemVersion;
-    //! MajorImageVersion
-    WORD MajorImageVersion;
-    //! MinorImageVersion
-    WORD MinorImageVersion;
-    //! MajorSubsystemVersion
-    WORD MajorSubsystemVersion;
-    //! MinorSubsystemVersion
-    WORD MinorSubsystemVersion;
-    //! Win32VersionValue
-    DWORD Win32VersionValue;
-    //! SizeOfImage
-    DWORD SizeOfImage;
-    //! SizeOfHeaders
-    DWORD SizeOfHeaders;
-    //! CheckSum
-    DWORD CheckSum;
-    //! Subsystem
-    WORD Subsystem;
-    //! DllCharacteristics
-    WORD DllCharacteristics;
-    //! Size Of Stack Reserve
-    ULONGLONG SizeOfStackReserve;
-    //! Size Of Stack Commit
-    ULONGLONG SizeOfStackCommit;
-    //! Size Of Heap Reserve
-    ULONGLONG SizeOfHeapReserve;
-    //! Size Of Heap Commit
-    ULONGLONG SizeOfHeapCommit;
-    //! Loader Flags
-    DWORD LoaderFlags;
-    //! Number Of Rva And Sizes
-    DWORD NumberOfRvaAndSizes;
-    //! Data Directory
-    IMAGE_DATA_DIRECTORY DataDirectory[___IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-} IMAGE_OPTIONAL_HEADER64;
-#if defined _MSC_VER
+};
+#ifdef _MSC_VER
 #pragma pack(pop)
 #endif
 
 /**
- * @brief File header
+ * Structure of section header with specific fields
  */
-#if defined _MSC_VER
-#pragma pack(push,1)
+#ifdef _MSC_VER
+#pragma pack(push, 1)
 #endif
-typedef struct
-#if defined __GNUC__
+struct
+#if defined __clang__ || defined __GNUC__
         __attribute__((packed))
 #endif
-IMAGE_FILE_HEADER {
-    //! Machine
-    WORD Machine;
-    //! Number Of Sections
-    WORD NumberOfSections;
-    //! TimeDateStamp
-    DWORD TimeDateStamp;
-    //! Pointer To SymbolTable
-    DWORD PointerToSymbolTable;
-    //! Number Of Symbols
-    DWORD NumberOfSymbols;
-    //! Size Of OptionalHeader
-    WORD SizeOfOptionalHeader;
-    //! Characteristics
-    WORD Characteristics;
-} IMAGE_FILE_HEADER;
-#if defined _MSC_VER
-#pragma pack(pop)
-#endif
-
-/**
- * @brief Nt headers
- */
-#if defined _MSC_VER
-#pragma pack(push,1)
-#endif
-typedef struct
-#if defined __GNUC__
-        __attribute__((packed))
-#endif
-IMAGE_NT_HEADERS64 {
-    //! Signature
-    DWORD Signature;
-    //! FileHeader
-    IMAGE_FILE_HEADER FileHeader;
-    //! OptionalHeader
-    IMAGE_OPTIONAL_HEADER64 OptionalHeader;
-} IMAGE_NT_HEADERS;
-#if defined _MSC_VER
-#pragma pack(pop)
-#endif
-
-
-/**
- * @brief Section header
- */
-#if defined _MSC_VER
-#pragma pack(push,1)
-#endif
-typedef struct
-#if defined __GNUC__
-        __attribute__((packed))
-#endif
-IMAGE_SECTION_HEADER {
-    //! Name
-    BYTE Name[IMAGE_SIZEOF_SHORT_NAME];
-    //! Misc
+SectionHeader {
+    ///An 8-byte, null-padded UTF-8 encoded string.
+    uint8_t name[8];
+    ///Misc
     union {
-        //! Physical Address of MISC
-        DWORD PhysicalAddress;
-        //! Virtual Size of MISC
-        DWORD VirtualSize;
+        ///Physical Size
+        uint32_t PhysicalSize;
+        ///The total size of the section when loaded into memory.
+        uint32_t VirtualSize;
     } Misc;
-    //! Virtual Address
-    DWORD VirtualAddress;
-    //! Size Of RawData
-    DWORD SizeOfRawData;
-    //! Pointer To RawData
-    DWORD PointerToRawData;
-    //! Pointer To Relocations
-    DWORD PointerToRelocations;
-    //! Pointer To Linenumbers
-    DWORD PointerToLinenumbers;
-    //! Number Of Relocations
-    WORD NumberOfRelocations;
-    //! Number Of Linenumbers
-    WORD NumberOfLinenumbers;
-    //! Characteristics
-    DWORD Characteristics;
-} IMAGE_SECTION_HEADER;
-#if defined _MSC_VER
+    ///For executable images, the address of the first byte of the section relative to the image base when the section is loaded into memory.
+    uint32_t VirtualAddress;
+    ///The size of the section or the size of the initialized data on disk.
+    uint32_t SizeOfRawData;
+    ///The file pointer to the first page of the section within the COFF file.
+    uint32_t PointerToRawData;
+    ///The file pointer to the beginning of relocation entries for the section.
+    uint32_t PointerToRelocations;
+    ///The file pointer to the beginning of line-number entries for the section.
+    uint16_t PointerToLinenumbers;
+    ///The number of relocation entries for the section.
+    uint32_t NumberOfRelocations;
+    ///The number of line-number entries for the section.
+    uint16_t NumberOfLinenumbers;
+    ///The number of line-number entries for the section.
+    uint32_t Characteristics;
+
+};
+
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
+
+
+/**
+ * Structure of PE file with specific fields
+ */
+#ifdef _MSC_VER
+#pragma pack(push, 1)
+#endif
+struct
+#if defined __clang__ || defined __GNUC__
+        __attribute__((packed))
+#endif
+PEFile {
+    ///Identifies the file as a PE format image file
+    uint32_t signature;
+    ///Header of PE file
+    struct PEHeader header;
+    ///Headers of sections
+    struct SectionHeader *sectionHeaders;
+
+};
+#ifdef _MSC_VER
 #pragma pack(pop)
 #endif
